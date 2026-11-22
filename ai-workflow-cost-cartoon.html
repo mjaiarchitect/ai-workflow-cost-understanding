@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>My 300-Person AI Story — Cartoon</title>
+  <meta name="description" content="Cartoon story: you own a 300-employee company and discover what Kimi K3 + UI-Mate really costs — seats, peak tok/s, queue, own vs rent." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Comic+Neue:wght@400;700&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #12110e;
+      --ink: #f4efe6;
+      --muted: #b7ab9a;
+      --faint: #8a7f6f;
+      --line: rgba(244, 239, 230, 0.18);
+      --line-solid: #3a342c;
+      --sky: #1c2a32;
+      --ground: #241f18;
+      --sun: #e0a15a;
+      --copper2: #f0c48a;
+      --coral: #e07a68;
+      --leaf: #a3d977;
+      --moss: #d5e4a8;
+      --teal: #7eb8c9;
+      --cream: rgba(224, 161, 90, 0.12);
+      --panel: rgba(28, 26, 22, 0.92);
+      --bubble: #1a1814;
+      --boss: #7eb8c9;
+      --emp: #e07a68;
+      --ok: #a3d977;
+      --display: "Baloo 2", "Trebuchet MS", sans-serif;
+      --hand: "Comic Neue", "Comic Sans MS", cursive;
+      --mono: "IBM Plex Mono", monospace;
+      --max: 52rem;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      font-family: var(--hand);
+      font-size: 1.12rem;
+      line-height: 1.45;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 420px at 8% -10%, rgba(224, 161, 90, 0.18), transparent 60%),
+        radial-gradient(700px 500px at 96% 12%, rgba(213, 228, 168, 0.06), transparent 55%),
+        linear-gradient(180deg, #17140f 0%, #101311 52%, #0c0f10 100%);
+      background-color: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    a { color: var(--copper2); font-weight: 700; }
+    :focus-visible { outline: 2px solid var(--copper2); outline-offset: 3px; }
+
+    .wrap {
+      width: min(100% - 1.25rem, var(--max));
+      margin-inline: auto;
+      padding: 1rem 0 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 0.75rem;
+      flex: 0 0 auto;
+    }
+    .landing-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #2a1c08;
+      background: var(--sun);
+      border: 1px solid rgba(224, 161, 90, 0.55);
+      border-radius: 0.4rem;
+      padding: 0.55rem 0.85rem;
+      white-space: nowrap;
+    }
+    .landing-btn:hover {
+      background: var(--copper2);
+      color: #2a1c08;
+    }
+
+    .deck {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+    }
+    .page {
+      display: none;
+      height: 100%;
+      animation: fade 0.28s ease;
+    }
+    .page.is-active { display: block; }
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .page { animation: none; }
+    }
+
+    .title-card,
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      overflow: hidden;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .cover-stage {
+      height: 100%;
+      grid-template-columns: minmax(11rem, 15rem) 1fr !important;
+      align-items: stretch !important;
+      padding: 0 !important;
+      background: transparent !important;
+      gap: 0 !important;
+      overflow: hidden;
+      border: 1px solid rgba(224, 161, 90, 0.35);
+      border-radius: 1rem;
+    }
+    .cover-stage .art {
+      margin: 0;
+      height: 100%;
+      aspect-ratio: auto;
+      background: #1a1612;
+      border-right: 1px solid var(--line);
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .cover-stage .art img {
+      width: 100%;
+      height: auto;
+      max-height: min(52vh, 22rem);
+      object-fit: cover;
+      border-radius: 0.75rem;
+      border: 1px solid var(--line);
+    }
+    .cover-stage .art-caption { color: var(--copper2); }
+    .title-card {
+      padding: 1.25rem 1.2rem 1.4rem;
+      position: relative;
+      justify-content: center;
+      border: 0;
+      border-radius: 0;
+      background:
+        linear-gradient(135deg, rgba(224, 161, 90, 0.1), transparent 50%),
+        var(--panel);
+    }
+    .title-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 0.85rem;
+      background: repeating-linear-gradient(
+        180deg,
+        var(--coral) 0 12px,
+        var(--sun) 12px 24px,
+        var(--teal) 24px 36px,
+        var(--leaf) 36px 48px
+      );
+    }
+    .kicker {
+      margin: 0 0 0.2rem 0.7rem;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--sun);
+    }
+    h1 {
+      margin: 0 0 0.35rem 0.7rem;
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: clamp(2rem, 6vw, 3.1rem);
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+    }
+    h1 span { color: var(--copper2); }
+    .lede {
+      margin: 0 0 0 0.7rem;
+      max-width: 34rem;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+    .cast {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin: 1rem 0 0 0.7rem;
+    }
+    .cast .who {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--cream);
+      border: 1px solid rgba(224, 161, 90, 0.4);
+      border-radius: 999px;
+      padding: 0.25rem 0.7rem 0.25rem 0.3rem;
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--ink);
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.75rem;
+      padding: 0.55rem 0.85rem;
+      background: rgba(0, 0, 0, 0.35);
+      border-bottom: 1px solid var(--line);
+      color: var(--ink);
+      font-family: var(--display);
+      font-weight: 700;
+      flex: 0 0 auto;
+    }
+    .panel-head .ep {
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--sun);
+    }
+    .panel-head h2 {
+      margin: 0;
+      font-size: clamp(1.15rem, 3vw, 1.45rem);
+      line-height: 1.15;
+    }
+    .stage {
+      display: grid;
+      grid-template-columns: minmax(10.5rem, 13.5rem) 1fr;
+      gap: 0.85rem;
+      padding: 0.95rem;
+      align-items: center;
+      background: linear-gradient(180deg, var(--sky) 0 58%, var(--ground) 58% 100%);
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+    }
+    .stage.night {
+      background: linear-gradient(180deg, #152028 0 58%, #1a1612 58% 100%);
+    }
+    .art {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+    .art img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      display: block;
+      border-radius: 0.75rem;
+      border: 1px solid var(--line);
+      background: #1a1612;
+    }
+    .art svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .art-caption {
+      margin-top: 0.35rem;
+      text-align: center;
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: 0.95rem;
+      line-height: 1.2;
+      color: var(--ink);
+    }
+    .art-caption small {
+      display: block;
+      font-family: var(--hand);
+      font-weight: 700;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 0.1rem;
+    }
+    .script { min-width: 0; }
+    .say {
+      position: relative;
+      background: var(--bubble);
+      border: 2px solid var(--line-solid);
+      border-radius: 1.1rem;
+      padding: 0.7rem 0.85rem;
+      margin: 0 0 0.55rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .say::after {
+      content: "";
+      position: absolute;
+      left: -0.55rem;
+      top: 1.1rem;
+      width: 0.85rem;
+      height: 0.85rem;
+      background: var(--bubble);
+      border-left: 2px solid var(--line-solid);
+      border-bottom: 2px solid var(--line-solid);
+      transform: rotate(45deg);
+    }
+    .say.boss { border-color: var(--boss); }
+    .say.boss::after { border-color: var(--boss); }
+    .say.emp { border-color: var(--emp); }
+    .say.emp::after { border-color: var(--emp); }
+    .say.ok { border-color: var(--ok); }
+    .say.ok::after { border-color: var(--ok); }
+    .narrate {
+      margin: 0;
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px dashed rgba(224, 161, 90, 0.4);
+      border-radius: 0.7rem;
+      padding: 0.65rem 0.75rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .narrate strong { color: var(--ink); }
+    .burst {
+      display: inline-block;
+      font-family: var(--display);
+      font-weight: 800;
+      background: var(--sun);
+      color: #2a1c08;
+      border: 2px solid rgba(224, 161, 90, 0.55);
+      border-radius: 0.4rem;
+      padding: 0.1rem 0.45rem;
+      transform: rotate(-2deg);
+    }
+    .burst.bad { background: var(--coral); color: #1a1208; border-color: rgba(224, 122, 104, 0.55); }
+    .burst.good { background: var(--leaf); color: #122008; border-color: rgba(163, 217, 119, 0.45); }
+    .mathy {
+      margin: 0.55rem 0 0;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      line-height: 1.5;
+      background: rgba(0, 0, 0, 0.45);
+      color: var(--ink);
+      border-radius: 0.65rem;
+      padding: 0.65rem 0.75rem;
+      white-space: pre-wrap;
+      border: 1px dashed rgba(224, 161, 90, 0.4);
+    }
+    .mathy .hi { color: var(--moss); font-weight: 700; }
+    .mathy .lo { color: var(--coral); font-weight: 700; }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.55rem;
+    }
+    .chip {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 0.85rem;
+      border: 1px solid rgba(224, 161, 90, 0.4);
+      border-radius: 999px;
+      padding: 0.2rem 0.65rem;
+      background: rgba(224, 161, 90, 0.09);
+      color: var(--ink);
+    }
+    .chip.bad {
+      border-color: rgba(224, 122, 104, 0.55);
+      background: rgba(224, 122, 104, 0.12);
+      color: var(--coral);
+    }
+    .chip.good {
+      border-color: rgba(213, 228, 168, 0.45);
+      background: rgba(213, 228, 168, 0.1);
+      color: var(--moss);
+    }
+    .doors {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.55rem;
+      margin-top: 0.55rem;
+    }
+    .door {
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px solid var(--line);
+      border-radius: 0.75rem;
+      padding: 0.55rem 0.6rem;
+      text-align: center;
+    }
+    .door .letter {
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: 1.5rem;
+      line-height: 1;
+      color: var(--copper2);
+    }
+    .door .name { font-family: var(--display); font-weight: 700; margin-top: 0.15rem; }
+    .door .hint { font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; font-weight: 700; }
+    .door.a { border-color: rgba(224, 122, 104, 0.45); background: rgba(224, 122, 104, 0.1); }
+    .door.b { border-color: rgba(224, 161, 90, 0.45); background: rgba(224, 161, 90, 0.1); }
+    .door.c { border-color: rgba(213, 228, 168, 0.4); background: rgba(213, 228, 168, 0.08); }
+    .ladder {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr;
+      gap: 0.45rem;
+      margin-top: 0.55rem;
+      align-items: stretch;
+    }
+    .rung,
+    .rung-group {
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px solid var(--line);
+      border-radius: 0.7rem;
+      padding: 0.5rem;
+      text-align: center;
+    }
+    .rung-group {
+      background: rgba(224, 161, 90, 0.08);
+      border-color: rgba(224, 161, 90, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .rung-group .group-title {
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: 0.78rem;
+      line-height: 1.2;
+      color: var(--copper2);
+    }
+    .rung-group .group-title small {
+      display: block;
+      font-family: var(--hand);
+      font-weight: 700;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.1rem;
+    }
+    .rung-group .pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem;
+      flex: 1;
+    }
+    .rung-group > .mini {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .rung-group .mini {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--line);
+      border-radius: 0.55rem;
+      padding: 0.4rem 0.3rem;
+    }
+    .rung .x,
+    .rung-group .x {
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: 1.55rem;
+      line-height: 1;
+    }
+    .rung-group .x { font-size: 1.25rem; }
+    .rung .cap,
+    .rung-group .cap {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 0.78rem;
+      margin-top: 0.2rem;
+    }
+    .rung .usd,
+    .rung-group .usd {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      margin-top: 0.25rem;
+      color: var(--muted);
+    }
+    .fin .stage {
+      background: linear-gradient(180deg, #2a2418 0 55%, #1a1610 55% 100%);
+    }
+
+    .pager {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.85rem 0 1.1rem;
+      flex: 0 0 auto;
+    }
+    .pager button {
+      appearance: none;
+      border: 1px solid rgba(224, 161, 90, 0.45);
+      border-radius: 0.7rem;
+      background: rgba(224, 161, 90, 0.12);
+      color: var(--ink);
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: 1rem;
+      padding: 0.55rem 1rem;
+      cursor: pointer;
+      min-width: 6.5rem;
+    }
+    .pager button:hover:not(:disabled) {
+      background: var(--sun);
+      color: #2a1c08;
+    }
+    .pager button:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+    .pager .progress {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-align: center;
+    }
+    .pager .dots {
+      display: flex;
+      gap: 0.35rem;
+      justify-content: center;
+      margin-top: 0.35rem;
+    }
+    .pager .dot {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 50%;
+      border: 1px solid rgba(224, 161, 90, 0.45);
+      background: transparent;
+      padding: 0;
+      min-width: 0;
+      cursor: pointer;
+    }
+    .pager .dot[aria-current="true"] { background: var(--sun); }
+    .links-row {
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      padding-bottom: 1rem;
+    }
+    .links-row nav {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.1rem;
+      margin-top: 0.35rem;
+    }
+
+    @media (max-width: 720px) {
+      .stage { grid-template-columns: 1fr; }
+      .cover-stage { grid-template-columns: 1fr !important; }
+      .cover-stage .art {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+        max-height: 14rem;
+      }
+      .cover-stage .art img { max-height: 12rem; }
+      .art { max-width: 14rem; margin-inline: auto; }
+      .say::after {
+        left: 1.2rem;
+        top: -0.45rem;
+        transform: rotate(-45deg);
+      }
+      .doors { grid-template-columns: 1fr 1fr; }
+      .ladder { grid-template-columns: 1fr; }
+      .pager button { min-width: 5.2rem; padding: 0.5rem 0.7rem; }
+    }
+    @media (max-width: 480px) {
+      .doors { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar" style="display:flex;gap:0.45rem;flex-wrap:wrap;justify-content:flex-end">
+      <a class="landing-btn" href="ai-workflow-cost-landing.html">← Landing page</a>
+      <a class="landing-btn" href="ai-workflow-cost-grounding.html" style="background:transparent;color:var(--copper2);border-color:rgba(224,161,90,0.45)">Grounding →</a>
+    </div>
+    <div class="deck" id="deck" aria-live="polite">
+
+      <section class="page is-active" data-page="0" aria-label="Cover">
+        <div class="stage cover-stage">
+          <div class="art" aria-hidden="true">
+            <img src="assets/cartoon-p00-cover.jpg" alt="Boss at laptop while employees work and chat in the office" />
+            <div class="art-caption">Me + team<small>in the office</small></div>
+          </div>
+        <header class="title-card">
+          <p class="kicker">Cartoon story · same math as the cost walkthrough</p>
+          <h1>I own the company.<br /><span>300 people.</span> One AI bill.</h1>
+          <p class="lede">
+            A comic of me (the boss) trying to give every employee research AI + desktop AI —
+            and learning that “$20 seats” is not the same as “enough tokens.”
+          </p>
+          <div class="cast" aria-label="Cast">
+            <span class="who">
+              <svg width="28" height="28" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#5b9bb5"/><path d="M20 22c2-8 22-8 24 0v4c-3 6-18 6-24 0z" fill="#1c1814"/><circle cx="32" cy="26" r="12" fill="#c9956c"/><rect x="21" y="23" width="9" height="7" rx="1.5" fill="none" stroke="#1c1814" stroke-width="1.8"/><rect x="34" y="23" width="9" height="7" rx="1.5" fill="none" stroke="#1c1814" stroke-width="1.8"/><path d="M30 26.5h4" stroke="#1c1814" stroke-width="1.6"/><circle cx="25.5" cy="26.5" r="1.4" fill="#1c1814"/><circle cx="38.5" cy="26.5" r="1.4" fill="#1c1814"/><path d="M26 32c3 2.5 9 2.5 12 0" stroke="#1c1814" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="32" cy="50" rx="15" ry="9" fill="#7eb6d4"/></svg>
+              Me · Owner
+            </span>
+            <span class="who">
+              <svg width="28" height="28" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#e36a5c"/><circle cx="32" cy="26" r="12" fill="#ffd7b0"/><ellipse cx="32" cy="48" rx="16" ry="10" fill="#1c1814"/><circle cx="27" cy="25" r="2" fill="#1c1814"/><circle cx="37" cy="25" r="2" fill="#1c1814"/><path d="M26 31c3 3 9 3 12 0" stroke="#1c1814" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+              Team · 300
+            </span>
+          </div>
+        </header>
+        </div>
+      </section>
+
+      <section class="page" data-page="1" aria-label="Episode 01">
+        <article class="panel">
+          <div class="panel-head">
+            <span class="ep">Episode 01</span>
+            <h2>My plant never sleeps</h2>
+          </div>
+          <div class="stage">
+            <div class="art" aria-hidden="true">
+              <img src="assets/cartoon-p01-plant.jpg" alt="Happy office shift of about 100 employees" />
+              <div class="art-caption">~100 on shift</div>
+            </div>
+            <div class="script">
+              <p class="say boss">“I run a company with <span class="burst">300 employees</span>. Three shifts. About <span class="burst">100 people</span> on at once. Every one needs AI — planning (Kimi K3) and desktop automation (UI-Mate).”</p>
+              <p class="narrate">24×7 coverage · 365 days · two models · five-year horizon. Same story math: <strong>ceil(300÷3) = 100</strong> on shift.</p>
+              <div class="chips">
+                <span class="chip">300 roster</span>
+                <span class="chip">100 concurrent</span>
+                <span class="chip">K3 + UI-Mate</span>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="page" data-page="2" aria-label="Episode 02">
+        <article class="panel">
+          <div class="panel-head">
+            <span class="ep">Episode 02</span>
+            <h2>The “cheap” plan</h2>
+          </div>
+          <div class="stage">
+            <div class="art" aria-hidden="true">
+              <img src="assets/cartoon-p02-quota.jpg" alt="Few employees blocked as $20 AI subscription quota finishes" />
+              <div class="art-caption">$20 seat · quota done</div>
+            </div>
+            <div class="script">
+              <p class="say boss">“Spreadsheet says <span class="burst">$20 × 300 = $6,000 / month</span>. Looks fine. Buy the seats!”</p>
+              <p class="say emp">“Boss… my <span class="burst bad">quota died</span> in two days. I can’t research. The GUI agent stopped mid-click.”</p>
+              <p class="narrate">The seat was a <strong>money unit</strong>, not a promise of continuous tokens. Work stalled. I still paid $6k — and got blocked.</p>
+              <div class="chips">
+                <span class="chip bad">Quota ≠ 24×7 capacity</span>
+                <span class="chip">Need enough tokens / month</span>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="page" data-page="3" aria-label="Episode 03">
+        <article class="panel">
+          <div class="panel-head">
+            <span class="ep">Episode 03</span>
+            <h2>I multiply wrong… then right</h2>
+          </div>
+          <div class="stage">
+            <div class="art" aria-hidden="true">
+              <img src="assets/cartoon-p03-math.jpg" alt="Board: 100 tok/s times 100 on shift equals 10,000 tok/s parallel" />
+              <div class="art-caption">100 × 100<small>= 10,000 tok/s</small></div>
+            </div>
+            <div class="script">
+              <p class="say boss">“If each of my 100 on-shift people needs 100 tok/s… that’s not one shared 100. That’s <span class="burst">10,000 tok/s</span> per model!”</p>
+              <div class="mathy">Wrong: 100 tok/s × 86,400 s → ~260 M / mo
+Right: 100 × 100 = <span class="hi">10,000 tok/s</span>
+Month: 10,000 × 2,628,000 = <span class="hi">~26.3 B tokens</span>
+…and I need that for <span class="hi">K3 AND UI-Mate</span></div>
+              <div class="chips">
+                <span class="chip bad">Flaw: understated ~100×</span>
+                <span class="chip good">Floor: 26.3 B + 26.3 B</span>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="page" data-page="4" aria-label="Episode 04">
+        <article class="panel">
+          <div class="panel-head">
+            <span class="ep">Episode 04</span>
+            <h2>One cute rack is not enough</h2>
+          </div>
+          <div class="stage">
+            <div class="art" aria-hidden="true">
+              <img src="assets/cartoon-p04-racks.jpg" alt="One cute node vs pleasant 41 and 72 rack rows" />
+              <div class="art-caption">1 node<small>need 41 + 72</small></div>
+            </div>
+            <div class="script">
+              <p class="say boss">“Can one node even load Kimi K3? Yes — 8× B300-class. Can one node spit 10,000 tok/s? <span class="burst bad">Nope.</span>”</p>
+              <div class="mathy">Mid lab:
+K3 244 tok/s → ~641 M / mo  <span class="lo">✗ ~41× short</span>
+UI 140 tok/s → ~368 M / mo  <span class="lo">✗ ~71× short</span>
+
+ceil(10,000/244)= <span class="hi">41 K3 nodes</span>
+ceil(10,000/140)= <span class="hi">72 UI nodes</span></div>
+              <div class="chips">
+                <span class="chip bad">1+1 ≈ 1% of peak</span>
+                <span class="chip">Peak mid: 41 + 72</span>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="page" data-page="5" aria-label="Episode 05">
+        <article class="panel">
+          <div class="panel-head">
+            <span class="ep">Episode 05</span>
+            <h2>Not everyone generates at once</h2>
+          </div>
+          <div class="stage">
+            <div class="art" aria-hidden="true">
+              <img src="assets/cartoon-p05-queue.jpg" alt="Five scenes: chat, coffee, meeting, thinking, only one typing to AI" />
+              <div class="art-caption">1 of 5<small>= ~20% AI</small></div>
+            </div>
+            <div class="script">
+              <p class="say boss">“Peak assumes all 100 people decode at once, forever. Real work is bursty — type, wait, read, click, think.”</p>
+              <p class="say ok">“So I add a <span class="burst good">queue / scheduler</span>. Size for ~20 active streams, not 100. Users still feel snappy.”</p>
+              <div class="mathy">Peak: 10,000 tok/s → 41 + 72 nodes
+Queue ~20%: 2,000 tok/s → <span class="hi">9 + 15 nodes</span>
+Tokens / mo / model → <span class="hi">~5.3 B</span> (not 26.3 B)</div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="page" data-page="6" aria-label="Episode 06">
+        <article class="panel">
+          <div class="panel-head">
+            <span class="ep">Episode 06</span>
+            <h2>Three doors in my hallway</h2>
+          </div>
+          <div class="stage">
+            <div class="art" aria-hidden="true">
+              <img src="assets/cartoon-p06-doors.jpg" alt="Three doors: buy, rent, or subscriptions" />
+              <div class="art-caption">A · B · C</div>
+            </div>
+            <div class="script">
+              <p class="say boss">“Same work. Three ways to pay.”</p>
+              <div class="doors" aria-label="Three buy paths">
+                <div class="door a">
+                  <div class="letter">A</div>
+                  <div class="name">Buy hardware</div>
+                  <div class="hint">On-prem · 9+15 with queue · depreciate 5 yr</div>
+                </div>
+                <div class="door b">
+                  <div class="letter">B</div>
+                  <div class="name">Rent hardware</div>
+                  <div class="hint">Cloud GPUs · GPU-hr × 730 h</div>
+                </div>
+                <div class="door c">
+                  <div class="letter">C</div>
+                  <div class="name">Rent the whole stack</div>
+                  <div class="hint">Enough seats for ~5.3B+5.3B</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="page" data-page="7" aria-label="Episode 07">
+        <article class="panel">
+          <div class="panel-head">
+            <span class="ep">Episode 07</span>
+            <h2>The price tags (queue design)</h2>
+          </div>
+          <div class="stage night">
+            <div class="art" aria-hidden="true">
+              <img src="assets/cartoon-p07-prices.jpg" alt="Price tag multiples on the wall" />
+              <div class="art-caption">1×<small>AMD own-buy</small></div>
+            </div>
+            <div class="script">
+              <p class="say boss">“With the queue, my AMD own-buy floor is about <span class="burst">$62K / mo</span> (9 K3 + 15 UI). Everything else is a multiple of that.”</p>
+              <div class="ladder" aria-label="Queue cost ladder">
+                <div class="rung-group">
+                  <div class="group-title">
+                    Hardware purchased
+                    <small>(on premise)</small>
+                  </div>
+                  <div class="pair">
+                    <div class="mini">
+                      <div class="x" style="color:#e36a5c">1×</div>
+                      <div class="cap">AMD</div>
+                      <div class="usd">~$62K</div>
+                    </div>
+                    <div class="mini">
+                      <div class="x" style="color:#3d8b6e">~1.8×</div>
+                      <div class="cap">NVIDIA</div>
+                      <div class="usd">~$115K</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="rung-group">
+                  <div class="group-title">
+                    Hardware rented
+                    <small>(cloud hosting)</small>
+                  </div>
+                  <div class="mini">
+                    <div class="x" style="color:#c45c2a">~10×</div>
+                    <div class="usd">~$621K</div>
+                  </div>
+                </div>
+                <div class="rung-group">
+                  <div class="group-title">
+                    AI stack rented
+                    <small>(subscription)</small>
+                  </div>
+                  <div class="mini">
+                    <div class="x" style="color:#2a7a8c">~14×</div>
+                    <div class="usd">~$852K</div>
+                  </div>
+                </div>
+              </div>
+              <div class="mathy" style="margin-top:0.55rem">Peak AMD (no share): 41×$5,712 + 72×$724 = <span class="hi">$286,320</span>
+Queue AMD: 9×$5,712 + 15×$724 = <span class="hi">$62,268</span>  (~4.6× cheaper)</div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="page" data-page="8" aria-label="Episode 08">
+        <article class="panel">
+          <div class="panel-head">
+            <span class="ep">Episode 08</span>
+            <h2>What I tape on my wall</h2>
+          </div>
+          <div class="stage">
+            <div class="art" aria-hidden="true">
+              <img src="assets/cartoon-p08-wall.jpg" alt="Taping the lesson on the office wall" />
+              <div class="art-caption">lesson!</div>
+            </div>
+            <div class="script">
+              <p class="say boss">“First fill <span class="burst">employees × tok/s</span>. Then choose peak insurance vs a shared queue. Then pick the buy path.”</p>
+              <p class="narrate">
+                Own-buy still wins on dollars if I accept ops risk (power, parts past 3-year warranty, software queue).
+                Hosted ≈ <strong>10×</strong>. Enough seats ≈ <strong>14–15×</strong>. The old $6k Pro seats? Cute comic — not capacity.
+              </p>
+              <div class="chips">
+                <span class="chip good">Queue X′ ≈ $62K · 9+15</span>
+                <span class="chip">Peak X ≈ $286K · 41+72</span>
+                <span class="chip bad">1+1 / $6K seats → not enough</span>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="page" data-page="9" aria-label="Episode 09">
+        <article class="panel fin">
+          <div class="panel-head">
+            <span class="ep">Episode 09 · The mix</span>
+            <h2>I don’t have to pick only one door</h2>
+          </div>
+          <div class="stage">
+            <div class="art" aria-hidden="true">
+              <img src="assets/cartoon-p09-mix.jpg" alt="Boss and team celebrating the BUY + RENT + SEATS mix" />
+              <div class="art-caption">BUY + RENT + SEATS<small>team celebrates</small></div>
+            </div>
+            <div class="script">
+              <p class="say boss">“I can also design a <span class="burst good">combination</span>: buy a few nodes on premise, rent a few GPUs in the cloud, and buy a few subscriptions — not all-or-nothing.”</p>
+              <p class="narrate">
+                Steady base load on owned silicon. Burst / spillover on cloud GPUs.
+                Specialty or lightweight seats where a full node is overkill. One bill shape, three dials.
+              </p>
+              <div class="doors" aria-label="Hybrid mix">
+                <div class="door a">
+                  <div class="letter">A</div>
+                  <div class="name">Buy a few</div>
+                  <div class="hint">On-prem base capacity</div>
+                </div>
+                <div class="door b">
+                  <div class="letter">B</div>
+                  <div class="name">Rent a few</div>
+                  <div class="hint">Cloud GPUs for peaks</div>
+                </div>
+                <div class="door c">
+                  <div class="letter">C</div>
+                  <div class="name">Seat a few</div>
+                  <div class="hint">Subscriptions for niches</div>
+                </div>
+              </div>
+              <p class="say ok" style="margin-top:0.55rem">“I think in the future <span class="burst">most companies</span> will run a mix of these three — instead of going all-in on just one.”</p>
+            </div>
+          </div>
+        </article>
+      </section>
+
+    </div>
+
+    <div class="pager" role="navigation" aria-label="Story pages">
+      <button type="button" id="btn-back" aria-label="Previous page">← Back</button>
+      <div>
+        <div class="progress" id="page-label">Page 1 of 10</div>
+        <div class="dots" id="dots" aria-hidden="true"></div>
+      </div>
+      <button type="button" id="btn-next" aria-label="Next page">Next →</button>
+    </div>
+
+    <div class="links-row">
+      Same lab units as the cost story.
+      <nav aria-label="Related">
+        <a href="ai-workflow-cost-landing.html">Landing →</a>
+        <a href="ai-workflow-cost-grounding.html">Grounding →</a>
+      </nav>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var pages = Array.prototype.slice.call(document.querySelectorAll(".page"));
+      var btnBack = document.getElementById("btn-back");
+      var btnNext = document.getElementById("btn-next");
+      var label = document.getElementById("page-label");
+      var dots = document.getElementById("dots");
+      var i = 0;
+
+      pages.forEach(function (_, idx) {
+        var d = document.createElement("button");
+        d.type = "button";
+        d.className = "dot";
+        d.setAttribute("aria-label", "Go to page " + (idx + 1));
+        d.addEventListener("click", function () { go(idx); });
+        dots.appendChild(d);
+      });
+
+      function go(n) {
+        i = Math.max(0, Math.min(pages.length - 1, n));
+        pages.forEach(function (p, idx) {
+          p.classList.toggle("is-active", idx === i);
+        });
+        Array.prototype.forEach.call(dots.children, function (d, idx) {
+          d.setAttribute("aria-current", idx === i ? "true" : "false");
+        });
+        label.textContent = "Page " + (i + 1) + " of " + pages.length;
+        btnBack.disabled = i === 0;
+        btnNext.disabled = i === pages.length - 1;
+        btnNext.textContent = i === pages.length - 1 ? "Done" : "Next →";
+        window.scrollTo(0, 0);
+      }
+
+      btnBack.addEventListener("click", function () { go(i - 1); });
+      btnNext.addEventListener("click", function () { go(i + 1); });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "ArrowRight" || e.key === "PageDown") go(i + 1);
+        if (e.key === "ArrowLeft" || e.key === "PageUp") go(i - 1);
+      });
+
+      go(0);
+    })();
+  </script>
+</body>
+</html>

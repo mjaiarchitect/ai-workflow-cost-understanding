@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>AI Workflow Cost — Landing</title>
+  <meta name="description" content="Kimi K3 and UI-Mate monthly unit cost: hardware purchased (AMD / NVIDIA), hardware rented, or the entire AI stack rented as subscriptions." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Fraunces:opsz,wght@9..144,560;9..144,700;9..144,900&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #12110e;
+      --ink: #f4efe6;
+      --muted: #b7ab9a;
+      --faint: #8a7f6f;
+      --copper: #e0a15a;
+      --copper2: #f0c48a;
+      --moss: #d5e4a8;
+      --red: #e07a68;
+      --green: #a3d977;
+      --gold: #e8d5a3;
+      --line: rgba(244, 239, 230, 0.14);
+      --serif: "Fraunces", "Iowan Old Style", Palatino, serif;
+      --sans: "Figtree", "Avenir Next", "Century Gothic", sans-serif;
+      --mono: "IBM Plex Mono", "Source Code Pro", monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      min-height: 100vh;
+      background:
+        radial-gradient(900px 420px at 8% -10%, rgba(224, 161, 90, 0.2), transparent 60%),
+        radial-gradient(700px 500px at 96% 12%, rgba(213, 228, 168, 0.07), transparent 55%),
+        linear-gradient(180deg, #17140f 0%, #101311 52%, #0c0f10 100%);
+      background-color: var(--bg);
+    }
+    ::selection { background: #e0a15a; color: #1a1208; }
+    :focus-visible { outline: 2px solid var(--copper2); outline-offset: 3px; }
+
+    .board {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: clamp(1.4rem, 3vw, 2.4rem) clamp(1rem, 3vw, 2rem) 2.5rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .top-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-left: auto;
+    }
+    .story-btn,
+    .dollar-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #2a1c08;
+      background: var(--copper);
+      border: 1px solid rgba(224, 161, 90, 0.55);
+      border-radius: 0.4rem;
+      padding: 0.55rem 0.85rem;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .story-btn:hover,
+    .dollar-btn:hover {
+      background: var(--copper2);
+      color: #2a1c08;
+    }
+    .dollar-btn {
+      appearance: none;
+      background: transparent;
+      color: var(--copper2);
+      border-color: rgba(224, 161, 90, 0.45);
+    }
+    .dollar-btn:hover {
+      background: rgba(224, 161, 90, 0.14);
+      color: var(--copper2);
+    }
+    .dollar-btn[aria-pressed="true"] {
+      background: var(--copper);
+      color: #2a1c08;
+    }
+    .dollar-btn[aria-pressed="true"]:hover {
+      background: var(--copper2);
+      color: #2a1c08;
+    }
+    .dollar-banner {
+      display: none;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      line-height: 1.45;
+      color: var(--muted);
+      border: 1px dashed rgba(224, 161, 90, 0.4);
+      background: rgba(224, 161, 90, 0.08);
+      border-radius: 0.4rem;
+      padding: 0.65rem 0.8rem;
+    }
+    .dollar-banner.is-on { display: block; }
+    .dollar-banner b { color: var(--copper2); font-weight: 700; }
+    .col-usd {
+      display: none;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      color: var(--faint);
+      margin-top: 0.15rem;
+    }
+    body.show-dollars .col-usd { display: block; }
+    body.show-dollars .col-meta { min-height: 3.3rem; }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem 1.1rem;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .swatch {
+      width: 0.7rem;
+      height: 0.7rem;
+      border-radius: 2px;
+      flex: 0 0 auto;
+    }
+    .swatch.amd { background: linear-gradient(180deg, #e07a68, #c45c4a); }
+    .swatch.nvidia { background: linear-gradient(180deg, #a3d977, #6faf4e); }
+    .swatch.hosted { background: linear-gradient(180deg, #e0a15a, #d4893a); }
+    .swatch.subs { background: linear-gradient(180deg, #e8d5a3, #b8955c); }
+
+    .charts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.75rem;
+      flex: 1;
+    }
+    .chart {
+      border-top: 3px solid var(--copper);
+      padding-top: 0.85rem;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+    .chart.ui { border-top-color: var(--moss); }
+    .chart h2 {
+      font-family: var(--serif);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      font-size: clamp(1.55rem, 2.4vw, 2.05rem);
+      line-height: 1;
+      margin: 0;
+    }
+    .chart h2 span { color: var(--copper2); }
+    .chart.ui h2 span { color: var(--moss); }
+    .spec {
+      margin: 0.35rem 0 0;
+      font-family: var(--mono);
+      font-size: 0.66rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+    .spec b { color: var(--ink); font-weight: 600; }
+
+    .v-plot {
+      --bar-h: 220px;
+      display: grid;
+      grid-template-columns: 1.35fr 0.85fr 1fr;
+      gap: 0.85rem;
+      align-items: end;
+      padding: 0.4rem 0 0;
+    }
+    .group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      min-width: 0;
+    }
+    .group-label {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--faint);
+      text-align: center;
+      line-height: 1.35;
+      min-height: 2.4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.2rem;
+    }
+    .group-label .main { display: block; }
+    .group-label .note {
+      display: block;
+      font-size: 0.58rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: none;
+      color: var(--faint);
+      border-top: 1px solid rgba(244, 239, 230, 0.28);
+      padding-top: 0.2rem;
+      margin-top: 0.05rem;
+    }
+    .group.buy .group-label { color: var(--copper2); }
+    .group.buy .group-label .note { color: var(--muted); border-top-color: rgba(240, 196, 138, 0.35); }
+    .group.rent .group-label { color: var(--copper); }
+    .group.stack .group-label { color: var(--gold); }
+
+    .bars {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 0.65rem;
+    }
+    .col {
+      flex: 1;
+      max-width: 4.4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .col-meta {
+      text-align: center;
+      line-height: 1.15;
+      min-height: 2.7rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .col-mult {
+      font-family: var(--serif);
+      font-weight: 900;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      display: block;
+    }
+    .col.is-base .col-mult { color: var(--copper2); }
+    .v-track {
+      width: 100%;
+      height: var(--bar-h);
+      display: flex;
+      align-items: flex-end;
+      border-bottom: 1px solid var(--line);
+    }
+    .v-fill {
+      width: 100%;
+      height: 0;
+      border-radius: 4px 4px 2px 2px;
+      transition: height 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .v-fill.amd { background: linear-gradient(180deg, #e07a68, #c45c4a); }
+    .v-fill.nvidia { background: linear-gradient(180deg, #a3d977, #6faf4e); }
+    .v-fill.hosted { background: linear-gradient(180deg, #e0a15a, #d4893a); }
+    .v-fill.subs { background: linear-gradient(180deg, #e8d5a3, #b8955c); }
+    .col-name {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+    }
+    .col.is-base .col-name { color: var(--copper2); }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: none; }
+    }
+    .rise { animation: rise 0.65s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .d1 { animation-delay: 0.06s; }
+    .d2 { animation-delay: 0.14s; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+
+    @media (max-width: 900px) {
+      .charts { grid-template-columns: 1fr; }
+      .v-plot { --bar-h: 220px; }
+    }
+    @media (max-width: 560px) {
+      .v-plot {
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
+        --bar-h: 200px;
+      }
+      .group-label {
+        min-height: auto;
+        justify-content: flex-start;
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="board">
+    <div class="topbar rise">
+      <div class="legend" aria-hidden="true">
+        <span><i class="swatch amd"></i>AMD</span>
+        <span><i class="swatch nvidia"></i>NVIDIA</span>
+        <span><i class="swatch hosted"></i>Hardware rented</span>
+        <span><i class="swatch subs"></i>AI stack rented</span>
+      </div>
+      <div class="top-actions">
+        <button type="button" class="dollar-btn" id="dollar-btn" aria-pressed="false">Reveal dollars / mo</button>
+        <a class="story-btn" href="ai-workflow-cost-grounding.html" style="background:transparent;color:var(--copper2)">Grounding →</a>
+        <a class="story-btn" href="ai-workflow-cost-cartoon.html">Cartoon story →</a>
+      </div>
+    </div>
+
+    <div class="dollar-banner" id="dollar-banner" hidden>
+      <b>100 employees × 100 tok/s</b> continuous peak · mid band ·
+      <b>41× K3 + 72× UI</b> nodes · each bar shows fleet cost per month for that model
+    </div>
+
+    <div class="charts">
+      <article class="chart rise d1" aria-labelledby="k3-title">
+        <div>
+          <h2 id="k3-title">Kimi <span>K3</span></h2>
+          <p class="spec" id="k3-sub">~2.8T MoE · mid · AMD base 1×</p>
+        </div>
+        <div class="v-plot" id="k3-bars" role="img" aria-label="Kimi K3 monthly unit cost by purchase path"></div>
+      </article>
+
+      <article class="chart ui rise d2" aria-labelledby="ui-title">
+        <div>
+          <h2 id="ui-title">UI-<span>Mate</span></h2>
+          <p class="spec" id="ui-sub">27B · mid · AMD base 1×</p>
+        </div>
+        <div class="v-plot" id="ui-bars" role="img" aria-label="UI-Mate monthly unit cost by purchase path"></div>
+      </article>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+      var MONTH_SECONDS = 2628000;
+      var NEED_R = 100 * 100; // 100 employees × 100 tok/s
+      var AMD = { k3: 5712, ui: 724 };
+      var NVIDIA = { k3: 11266, ui: 877 };
+      var HOSTED = { k3: 58850, ui: 6064 };
+      var R = {
+        low: { label: "Low", k3: 118, ui: 80 },
+        mid: { label: "Mid", k3: 244, ui: 140 },
+        high: { label: "High", k3: 370, ui: 200 }
+      };
+
+      function ceilDiv(a, b) { return Math.ceil(a / b); }
+      function fmtMoney(n) {
+        if (n >= 1e6) return "$" + (n / 1e6).toFixed(n >= 1e7 ? 1 : 2).replace(/\.00$/, "") + "M";
+        if (n >= 1000) return "$" + Math.round(n).toLocaleString("en-US");
+        return "$" + n;
+      }
+      function fmtMult(n) {
+        if (n >= 10) return "~" + Math.round(n) + "\u00D7";
+        var r = Math.round(n * 10) / 10;
+        return (Math.abs(r - Math.round(r)) < 1e-9 ? String(Math.round(r)) : r.toFixed(1)) + "\u00D7";
+      }
+      function fleetSeats(tokPerSec, proxyPerM, planPrice) {
+        var tokens = tokPerSec * MONTH_SECONDS;
+        return ceilDiv(tokens * proxyPerM, planPrice * 1e6) * planPrice;
+      }
+
+      var BAR_PX = 220;
+      var showDollars = false;
+
+      function colHtml(item, max) {
+        var px = Math.max(18, Math.round((item.mult / max) * BAR_PX));
+        return (
+          '<div class="col' + (item.base ? " is-base" : "") + '">' +
+            '<div class="col-meta">' +
+              '<span class="col-mult">' + fmtMult(item.mult) + "</span>" +
+              '<span class="col-usd">' + fmtMoney(item.fleet) + " / mo</span>" +
+            "</div>" +
+            '<div class="v-track">' +
+              '<div class="v-fill ' + item.cls + '" data-h="' + px + '" style="height:0"></div>' +
+            "</div>" +
+            '<span class="col-name">' + item.name + "</span>" +
+          "</div>"
+        );
+      }
+
+      function plotHtml(groups, max) {
+        return groups.map(function (g) {
+          var label =
+            '<div class="group-label">' +
+              '<span class="main">' + g.label + "</span>" +
+              (g.note ? '<span class="note">(' + g.note + ")</span>" : "") +
+            "</div>";
+          return (
+            '<div class="group ' + g.cls + '">' +
+              label +
+              '<div class="bars">' +
+                g.items.map(function (item) { return colHtml(item, max); }).join("") +
+              "</div>" +
+            "</div>"
+          );
+        }).join("");
+      }
+
+      function animateBars(root) {
+        root.querySelectorAll(".v-fill").forEach(function (f) {
+          f.style.height = f.getAttribute("data-h") + "px";
+        });
+      }
+
+      function render(band) {
+        var b = R[band];
+        var k3Nodes = ceilDiv(NEED_R, b.k3);
+        var uiNodes = ceilDiv(NEED_R, b.ui);
+        var k3Seat = fleetSeats(k3Nodes * b.k3, 135, 200);
+        var uiSeat = fleetSeats(uiNodes * b.ui, 27, 20);
+
+        var k3Groups = [
+          {
+            cls: "buy",
+            label: "Hardware purchased",
+            note: "on premise",
+            items: [
+              { name: "AMD", cls: "amd", mult: 1, base: true, fleet: k3Nodes * AMD.k3 },
+              { name: "NVIDIA", cls: "nvidia", mult: NVIDIA.k3 / AMD.k3, fleet: k3Nodes * NVIDIA.k3 }
+            ]
+          },
+          {
+            cls: "rent",
+            label: "Hardware rented",
+            note: "cloud hosting",
+            items: [
+              { name: "Cloud", cls: "hosted", mult: HOSTED.k3 / AMD.k3, fleet: k3Nodes * HOSTED.k3 }
+            ]
+          },
+          {
+            cls: "stack",
+            label: "Entire AI stack rented",
+            note: "subscription",
+            items: [
+              { name: "Seats", cls: "subs", mult: k3Seat / (k3Nodes * AMD.k3), fleet: k3Seat }
+            ]
+          }
+        ];
+
+        var uiGroups = [
+          {
+            cls: "buy",
+            label: "Hardware purchased",
+            note: "on premise",
+            items: [
+              { name: "AMD", cls: "amd", mult: 1, base: true, fleet: uiNodes * AMD.ui },
+              { name: "NVIDIA", cls: "nvidia", mult: NVIDIA.ui / AMD.ui, fleet: uiNodes * NVIDIA.ui }
+            ]
+          },
+          {
+            cls: "rent",
+            label: "Hardware rented",
+            note: "cloud hosting",
+            items: [
+              { name: "Cloud", cls: "hosted", mult: HOSTED.ui / AMD.ui, fleet: uiNodes * HOSTED.ui }
+            ]
+          },
+          {
+            cls: "stack",
+            label: "Entire AI stack rented",
+            note: "subscription",
+            items: [
+              { name: "Seats", cls: "subs", mult: uiSeat / (uiNodes * AMD.ui), fleet: uiSeat }
+            ]
+          }
+        ];
+
+        var k3Max = Math.max.apply(null, k3Groups.reduce(function (acc, g) {
+          return acc.concat(g.items.map(function (i) { return i.mult; }));
+        }, []));
+        var uiMax = Math.max.apply(null, uiGroups.reduce(function (acc, g) {
+          return acc.concat(g.items.map(function (i) { return i.mult; }));
+        }, []));
+
+        var k3El = document.getElementById("k3-bars");
+        var uiEl = document.getElementById("ui-bars");
+        k3El.innerHTML = plotHtml(k3Groups, k3Max);
+        uiEl.innerHTML = plotHtml(uiGroups, uiMax);
+
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            animateBars(k3El);
+            animateBars(uiEl);
+          });
+        });
+
+        document.getElementById("k3-sub").innerHTML =
+          "~2.8T MoE · 104B active · MXFP4 · <b>" + b.label.toLowerCase() + "</b> · AMD base 1×" +
+          (showDollars ? " · fleet <b>" + k3Nodes + " nodes</b>" : "");
+        document.getElementById("ui-sub").innerHTML =
+          "27B · 1× GPU · <b>" + b.label.toLowerCase() + "</b> · AMD base 1×" +
+          (showDollars ? " · fleet <b>" + uiNodes + " nodes</b>" : "");
+
+        var banner = document.getElementById("dollar-banner");
+        banner.innerHTML =
+          "<b>100 employees × 100 tok/s</b> continuous peak · " + b.label.toLowerCase() + " band · " +
+          "<b>" + k3Nodes + "× K3 + " + uiNodes + "× UI</b> · each bar shows fleet cost <b>per month</b> for that model";
+      }
+
+      function setDollars(on) {
+        showDollars = on;
+        document.body.classList.toggle("show-dollars", on);
+        var btn = document.getElementById("dollar-btn");
+        var banner = document.getElementById("dollar-banner");
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+        btn.textContent = on ? "Hide dollars / mo" : "Reveal dollars / mo";
+        banner.hidden = !on;
+        banner.classList.toggle("is-on", on);
+        render("mid");
+      }
+
+      document.getElementById("dollar-btn").addEventListener("click", function () {
+        setDollars(!showDollars);
+      });
+
+      render("mid");
+    })();
+  </script>
+</body>
+</html>

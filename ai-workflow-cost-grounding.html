@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>AI Workflow Cost — Grounding</title>
+  <meta name="description" content="How every number on the landing page and cartoon story is derived: headcount, tok/s, nodes, CapEx÷60, cloud rent, seats, queue design." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Fraunces:opsz,wght@9..144,560;9..144,700;9..144,900&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #12110e;
+      --ink: #f4efe6;
+      --muted: #b7ab9a;
+      --faint: #8a7f6f;
+      --copper: #e0a15a;
+      --copper2: #f0c48a;
+      --moss: #d5e4a8;
+      --red: #e07a68;
+      --green: #a3d977;
+      --gold: #e8d5a3;
+      --line: rgba(244, 239, 230, 0.14);
+      --serif: "Fraunces", "Iowan Old Style", Palatino, serif;
+      --sans: "Figtree", "Avenir Next", "Century Gothic", sans-serif;
+      --mono: "IBM Plex Mono", "Source Code Pro", monospace;
+      --max: 46rem;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      font-size: 1.02rem;
+      line-height: 1.55;
+      color: var(--ink);
+      background:
+        radial-gradient(820px 380px at 8% -6%, rgba(224, 161, 90, 0.16), transparent 58%),
+        linear-gradient(180deg, #17140f 0%, #101311 48%, #0c0f10 100%);
+      min-height: 100vh;
+    }
+    a { color: var(--copper2); text-underline-offset: 3px; }
+    a:hover { color: #fff4df; }
+    :focus-visible { outline: 2px solid var(--copper2); outline-offset: 3px; }
+
+    .wrap { width: min(100% - 1.5rem, var(--max)); margin-inline: auto; padding: 1.25rem 0 3rem; }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+    .pill {
+      display: inline-flex;
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #2a1c08;
+      background: var(--copper);
+      border-radius: 0.35rem;
+      padding: 0.5rem 0.8rem;
+    }
+    .pill:hover { background: var(--copper2); color: #2a1c08; }
+    .pill.ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+    .pill.ghost:hover { color: var(--ink); border-color: rgba(224, 161, 90, 0.4); }
+
+    header.hero {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 1.1rem;
+      margin-bottom: 1.25rem;
+    }
+    .kicker {
+      margin: 0;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--copper);
+    }
+    h1 {
+      font-family: var(--serif);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 0.98;
+      font-size: clamp(2rem, 5vw, 3rem);
+      margin: 0.35rem 0 0;
+    }
+    h1 em { font-style: italic; font-weight: 560; color: var(--copper2); }
+    .lede { margin: 0.65rem 0 0; color: var(--muted); max-width: 38rem; }
+
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin: 1rem 0 0;
+    }
+    .toc a {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0.3rem 0.55rem;
+    }
+    .toc a:hover { color: var(--copper2); border-color: rgba(224, 161, 90, 0.4); }
+
+    .ep {
+      margin: 0 0 1.35rem;
+      padding: 1rem 1rem 1.1rem;
+      border: 1px solid var(--line);
+      background: rgba(28, 26, 22, 0.45);
+      scroll-margin-top: 1rem;
+    }
+    .ep .act {
+      margin: 0 0 0.3rem;
+      font-family: var(--mono);
+      font-size: 0.64rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--copper);
+    }
+    .ep h2 {
+      font-family: var(--serif);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      font-size: clamp(1.25rem, 2.8vw, 1.65rem);
+      line-height: 1.15;
+      margin: 0 0 0.55rem;
+    }
+    .ep p { margin: 0.4rem 0; color: var(--muted); }
+    .ep p strong { color: var(--ink); }
+
+    .math {
+      margin: 0.7rem 0 0;
+      padding: 0.7rem 0.8rem;
+      font-family: var(--mono);
+      font-size: 0.74rem;
+      line-height: 1.55;
+      color: var(--ink);
+      background: rgba(0, 0, 0, 0.32);
+      border: 1px dashed rgba(224, 161, 90, 0.4);
+      border-radius: 0.3rem;
+      white-space: pre-wrap;
+    }
+    .math .ans { color: var(--moss); font-weight: 700; }
+    .math .warn { color: var(--red); font-weight: 700; }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.55rem;
+      margin-top: 0.7rem;
+    }
+    .card {
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.22);
+      padding: 0.65rem 0.7rem;
+    }
+    .card h3 {
+      margin: 0;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--copper);
+    }
+    .card .big {
+      font-family: var(--serif);
+      font-weight: 900;
+      font-size: 1.35rem;
+      letter-spacing: -0.02em;
+      margin-top: 0.25rem;
+    }
+    .card .note {
+      margin-top: 0.25rem;
+      font-size: 0.78rem;
+      color: var(--faint);
+      line-height: 1.4;
+    }
+
+    table.lines {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.7rem;
+      font-size: 0.84rem;
+    }
+    table.lines th, table.lines td {
+      text-align: left;
+      padding: 0.45rem 0.4rem;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    table.lines th {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--copper);
+    }
+    table.lines td.num {
+      font-family: var(--mono);
+      font-weight: 600;
+      white-space: nowrap;
+      color: var(--moss);
+    }
+    table.lines td.form {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .src {
+      margin-top: 0.65rem;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      line-height: 1.5;
+      color: var(--faint);
+    }
+    .src a { font-weight: 600; }
+
+    footer {
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      color: var(--faint);
+      font-size: 0.8rem;
+    }
+    footer nav { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin-top: 0.4rem; }
+
+    @media (max-width: 640px) {
+      .grid2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <a class="pill ghost" href="ai-workflow-cost-landing.html">← Landing</a>
+      <a class="pill ghost" href="ai-workflow-cost-cartoon.html">Cartoon story</a>
+    </div>
+
+    <header class="hero">
+      <p class="kicker">Grounding · same lab units as landing + cartoon</p>
+      <h1>How each number<br /><em>is derived</em></h1>
+      <p class="lede">
+        Follows the cartoon story order. Every figure on the landing page and cartoon
+        comes from the algebra below — CapEx÷60 + power, cloud On-Demand × 730 h,
+        and seat proxies for continuous tokens. Colo, staff, storage, and egress sit outside these lines.
+      </p>
+      <nav class="toc" aria-label="Episodes">
+        <a href="#e0">00 Constants</a>
+        <a href="#e1">01 Headcount</a>
+        <a href="#e2">02 Cheap seats</a>
+        <a href="#e3">03 Tok/s</a>
+        <a href="#e4">04 Nodes</a>
+        <a href="#e5">05 Queue</a>
+        <a href="#e6">06 Unit $/mo</a>
+        <a href="#e7">07 Fleet $</a>
+        <a href="#e8">08 Checks</a>
+        <a href="#e9">09 Mix</a>
+      </nav>
+    </header>
+
+    <article class="ep" id="e0">
+      <p class="act">00 · Lab constants</p>
+      <h2>Month, bands, and money units</h2>
+      <p>Shared lab constants for the landing page and cartoon. Landing “Reveal dollars” and cartoon price tags use the <strong>mid</strong> band unless noted.</p>
+      <div class="math" id="m0"></div>
+      <p class="src">
+        Month hours: usual cloud accounting month ≈ 365.25×24÷12.
+        Power: <a href="https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_3" target="_blank" rel="noopener noreferrer">U.S. EIA</a> @ $0.18/kWh.
+        Decode bands are lab emit assumptions, not published MLPerf for these two models.
+      </p>
+    </article>
+
+    <article class="ep" id="e1">
+      <p class="act">01 · Cartoon · My plant never sleeps</p>
+      <h2>300 employees → 100 on at once</h2>
+      <p>Three shifts cover 24×7. Concurrent capacity is the roster divided by three, rounded up.</p>
+      <div class="math" id="m1"></div>
+      <div class="grid2">
+        <div class="card"><h3>Roster</h3><div class="big" id="c-roster">300</div><div class="note">Whole company</div></div>
+        <div class="card"><h3>On shift</h3><div class="big" id="c-shift">100</div><div class="note">ceil(300 ÷ 3)</div></div>
+      </div>
+    </article>
+
+    <article class="ep" id="e2">
+      <p class="act">02 · Cartoon · The “cheap” plan</p>
+      <h2>$20 seats × 300 looks fine — until quota dies</h2>
+      <p>This is only a money line. It is <strong>not</strong> a guarantee of continuous research + GUI tokens.</p>
+      <div class="math" id="m2"></div>
+    </article>
+
+    <article class="ep" id="e3">
+      <p class="act">03 · Cartoon · Multiply wrong, then right</p>
+      <h2>100 people × 100 tok/s each</h2>
+      <p>The trap is counting one shared 100 tok/s. Landing “Reveal dollars” and cartoon peak floor use the right aggregate.</p>
+      <div class="math" id="m3"></div>
+    </article>
+
+    <article class="ep" id="e4">
+      <p class="act">04 · Cartoon · One rack is not enough</p>
+      <h2>Nodes = ceil(10,000 ÷ node tok/s)</h2>
+      <p>Mid band: K3 244 tok/s, UI 140 tok/s. One node can load the weights; it cannot emit the whole peak alone.</p>
+      <div class="math" id="m4"></div>
+      <table class="lines" aria-label="Peak nodes mid">
+        <thead><tr><th>Model</th><th>R mid</th><th>Nodes</th><th>Tokens / mo</th></tr></thead>
+        <tbody id="t4"></tbody>
+      </table>
+    </article>
+
+    <article class="ep" id="e5">
+      <p class="act">05 · Cartoon · Not everyone generates at once</p>
+      <h2>Queue design ≈ 20% concurrent</h2>
+      <p>Peak assumes 100 full-rate streams forever. Queue sizes for ~20 active decode streams (still serving all 100 with a scheduler).</p>
+      <div class="math" id="m5"></div>
+      <table class="lines" aria-label="Queue vs peak">
+        <thead><tr><th>Design</th><th>Rate</th><th>K3 nodes</th><th>UI nodes</th><th>Tok / mo / model</th></tr></thead>
+        <tbody id="t5"></tbody>
+      </table>
+    </article>
+
+    <article class="ep" id="e6">
+      <p class="act">06 · Cartoon · Three doors + landing bars</p>
+      <h2>Unit $/mo · one node · one month</h2>
+      <p>Landing multiples are vs AMD own-buy. Hosted = AWS/GCP/Azure average. Seats bill continuous tokens from one mid node’s emit (unit compare), not headcount alone.</p>
+
+      <h3 style="font-family:var(--serif);margin:1rem 0 0.35rem;font-size:1.15rem">A · Hardware purchased (on premise)</h3>
+      <div class="math" id="m6a"></div>
+      <p class="src">
+        CapEx from Supermicro store starts:
+        <a href="https://store.supermicro.com/us_en/systems/gpu.html?system_gpu_support=995" target="_blank" rel="noopener noreferrer">MI350X / MI300X</a>,
+        <a href="https://store.supermicro.com/us_en/8u-gpu-superserver-sys-822gs-nb3rt.html" target="_blank" rel="noopener noreferrer">8× B300</a>,
+        <a href="https://store.supermicro.com/us_en/supermicro-nvidia-h100-pcie-gen-5-0-x16-graphics-card-gpu-nvh100-80.html" target="_blank" rel="noopener noreferrer">H100 card</a>.
+        ÷60 ≈ 5-year depreciation (<a href="https://www.irs.gov/publications/p946" target="_blank" rel="noopener noreferrer">IRS Pub. 946</a>).
+      </p>
+
+      <h3 style="font-family:var(--serif);margin:1rem 0 0.35rem;font-size:1.15rem">B · Hardware rented (cloud hosting)</h3>
+      <div class="math" id="m6b"></div>
+      <p class="src">
+        On-Demand list:
+        <a href="https://aws.amazon.com/ec2/instance-types/p5/" target="_blank" rel="noopener noreferrer">AWS P5</a>,
+        <a href="https://cloud.google.com/products/compute/pricing/accelerator-optimized" target="_blank" rel="noopener noreferrer">GCP a3</a>,
+        <a href="https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/ndh100v5-series" target="_blank" rel="noopener noreferrer">Azure ND/NC H100</a>.
+        Always-on × 730 h. H100 public meters (Blackwell cloud SKUs often Capacity Block / N/A).
+      </p>
+
+      <h3 style="font-family:var(--serif);margin:1rem 0 0.35rem;font-size:1.15rem">C · AI stack rented (subscription)</h3>
+      <div class="math" id="m6c"></div>
+      <p class="src">
+        API $/M proxies (lab blended): K3 $135/M · UI $27/M from Anthropic-style Opus/Sonnet patterns.
+        Seat denominators $200 / $20:
+        <a href="https://cursor.com/pricing" target="_blank" rel="noopener noreferrer">Cursor</a>,
+        <a href="https://claude.com/pricing" target="_blank" rel="noopener noreferrer">Claude</a>,
+        <a href="https://chatgpt.com/pricing/" target="_blank" rel="noopener noreferrer">ChatGPT</a>.
+      </p>
+
+      <table class="lines" aria-label="Unit multiples">
+        <thead><tr><th>Path</th><th>K3 $/mo</th><th>× AMD</th><th>UI $/mo</th><th>× AMD</th></tr></thead>
+        <tbody id="t6"></tbody>
+      </table>
+    </article>
+
+    <article class="ep" id="e7">
+      <p class="act">07 · Cartoon price tags + landing Reveal dollars</p>
+      <h2>Fleet bill for 100 × 100 tok/s</h2>
+      <p>
+        <strong>Peak</strong> (cartoon insurance case): 41 K3 + 72 UI.
+        <strong>Queue ~20%</strong> (cartoon $62K ladder): 9 K3 + 15 UI.
+        Landing Reveal dollars uses the peak fleet.
+      </p>
+      <div class="math" id="m7"></div>
+      <table class="lines" aria-label="Fleet costs">
+        <thead><tr><th>Path</th><th>Peak $/mo</th><th>× peak AMD</th><th>Queue $/mo</th><th>× queue AMD</th></tr></thead>
+        <tbody id="t7"></tbody>
+      </table>
+      <p class="src">Fleet seats = continuous tokens from required nodes × API proxy → ceil into $200 / $20 units.</p>
+    </article>
+
+    <article class="ep" id="e8">
+      <p class="act">08 · Cartoon · What I tape on my wall</p>
+      <h2>Sanity checks</h2>
+      <div class="math" id="m8"></div>
+    </article>
+
+    <article class="ep" id="e9">
+      <p class="act">09 · Cartoon · The mix</p>
+      <h2>Combination is allowed — not a fourth price tag</h2>
+      <p>
+        Episode 09 is qualitative: buy a few on-prem nodes, rent a few cloud GPUs, seat a few niches.
+        There is no single “hybrid $/mo” on the landing bars — you mix the three unit lines to taste.
+        The grounding claim is only that each dial uses the same algebra above.
+      </p>
+      <div class="math">Hybrid monthly cost (sketch):
+  own_nodes × (AMD or NVIDIA unit)
++ rented_nodes × hosted unit
++ seat_pile for leftover / niche tokens
+= your blend
+
+No unique closed form — by design.</div>
+    </article>
+
+    <footer>
+      Live algebra on this page. CapEx÷60 + power, cloud On-Demand × 730 h, and seat proxies match the landing and cartoon.
+      Not a vendor quote or invoice.
+      <nav aria-label="Related">
+        <a href="ai-workflow-cost-landing.html">Landing</a>
+        <a href="ai-workflow-cost-cartoon.html">Cartoon</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+      var MONTH_H = 730;
+      var MONTH_S = MONTH_H * 3600;
+      var POWER = 0.18;
+      var HEAD = 300;
+      var TOK_EACH = 100;
+      var ACTIVE_PCT = 0.2;
+      var MID = { k3: 244, ui: 140 };
+
+      var AMD = {
+        k3: { capex: 271748, kw: 9, label: "8× MI350X system" },
+        ui: { capex: 37506, kw: 0.75, label: "MI300X platform ÷ 8" }
+      };
+      var NV = {
+        k3: { capex: 565557, kw: 14, label: "8× B300 system" },
+        ui: { capex: 47907, kw: 0.6, label: "H100 + chassis" }
+      };
+      var CLOUD = {
+        aws: { k3: 6.88 * 8 * MONTH_H, ui: 6.88 * MONTH_H },
+        gcp: { k3: 88.49 * MONTH_H, ui: (88.49 / 8) * MONTH_H },
+        azure: { k3: 98.32 * MONTH_H, ui: 6.98 * MONTH_H }
+      };
+
+      function ceilDiv(a, b) { return Math.ceil(a / b); }
+      function round0(n) { return Math.round(n); }
+      function money(n) { return "$" + round0(n).toLocaleString("en-US"); }
+      function money2(n) { return "$" + n.toLocaleString("en-US", { maximumFractionDigits: 2 }); }
+      function mult(n) {
+        if (n >= 10) return "~" + Math.round(n) + "×";
+        var r = Math.round(n * 10) / 10;
+        return (Math.abs(r - Math.round(r)) < 1e-9 ? String(Math.round(r)) : r.toFixed(1)) + "×";
+      }
+      function unitMo(capex, kw) { return round0(capex / 60 + kw * MONTH_H * POWER); }
+      function avg3(a, b, c) { return round0((a + b + c) / 3); }
+      function seats(tokPerSec, proxy, plan) {
+        var tokens = tokPerSec * MONTH_S;
+        return ceilDiv(tokens * proxy, plan * 1e6) * plan;
+      }
+
+      var amdK = unitMo(AMD.k3.capex, AMD.k3.kw);
+      var amdU = unitMo(AMD.ui.capex, AMD.ui.kw);
+      var nvK = unitMo(NV.k3.capex, NV.k3.kw);
+      var nvU = unitMo(NV.ui.capex, NV.ui.kw);
+      var hostK = avg3(CLOUD.aws.k3, CLOUD.gcp.k3, CLOUD.azure.k3);
+      var hostU = avg3(CLOUD.aws.ui, CLOUD.gcp.ui, CLOUD.azure.ui);
+      var unitSeatK = seats(MID.k3, 135, 200);
+      var unitSeatU = seats(MID.ui, 27, 20);
+
+      var onShift = ceilDiv(HEAD, 3);
+      var needR = onShift * TOK_EACH;
+      var peakK3 = ceilDiv(needR, MID.k3);
+      var peakUi = ceilDiv(needR, MID.ui);
+      var qR = Math.round(needR * ACTIVE_PCT);
+      var qK3 = ceilDiv(qR, MID.k3);
+      var qUi = ceilDiv(qR, MID.ui);
+
+      function fleet(kNodes, uNodes) {
+        var kTok = kNodes * MID.k3;
+        var uTok = uNodes * MID.ui;
+        return {
+          amd: kNodes * amdK + uNodes * amdU,
+          nv: kNodes * nvK + uNodes * nvU,
+          host: kNodes * hostK + uNodes * hostU,
+          seats: seats(kTok, 135, 200) + seats(uTok, 27, 20),
+          kNodes: kNodes,
+          uNodes: uNodes
+        };
+      }
+      var peak = fleet(peakK3, peakUi);
+      var queue = fleet(qK3, qUi);
+
+      document.getElementById("m0").innerHTML =
+        "MONTH_HOURS = <span class=\"ans\">730</span>\n" +
+        "MONTH_SECONDS = 730 × 3,600 = <span class=\"ans\">" + MONTH_S.toLocaleString("en-US") + "</span>\n" +
+        "POWER = <span class=\"ans\">$0.18 / kWh</span> (EIA proxy)\n" +
+        "Mid decode: K3 <span class=\"ans\">244</span> tok/s · UI <span class=\"ans\">140</span> tok/s\n" +
+        "Low 118 / 80 · High 370 / 200 (lab bands)\n" +
+        "Seat proxies: K3 <span class=\"ans\">$135 / M</span> → Ultra <span class=\"ans\">$200</span> · UI <span class=\"ans\">$27 / M</span> → Pro <span class=\"ans\">$20</span>";
+
+      document.getElementById("m1").innerHTML =
+        "on_shift = ceil(300 ÷ 3) = <span class=\"ans\">" + onShift + "</span>\n" +
+        "Models: Kimi K3 (planning) + UI-Mate (desktop) · both every shift";
+
+      document.getElementById("m2").innerHTML =
+        "$20 × 300 = <span class=\"ans\">$6,000 / month</span>\n" +
+        "<span class=\"warn\">≠</span> continuous capacity · quota can finish in days";
+
+      var wrongDay = 100 * 86400;
+      var rightDay = needR * 86400;
+      var rightMo = needR * MONTH_S;
+      document.getElementById("m3").innerHTML =
+        "Wrong (one shared 100):\n" +
+        "  100 × 86,400 = " + (wrongDay / 1e6).toFixed(2) + " M / day → ~" + Math.round(wrongDay * 30 / 1e6) + " M / mo\n\n" +
+        "Right (100 people × 100 tok/s):\n" +
+        "  R = 100 × 100 = <span class=\"ans\">" + needR.toLocaleString("en-US") + " tok/s</span> per model\n" +
+        "  Day  = " + needR.toLocaleString("en-US") + " × 86,400 = <span class=\"ans\">" + (rightDay / 1e6).toFixed(0) + " M</span>\n" +
+        "  Month = " + needR.toLocaleString("en-US") + " × " + MONTH_S.toLocaleString("en-US") + " = <span class=\"ans\">" + (rightMo / 1e9).toFixed(2) + " B</span>\n" +
+        "Need that for <span class=\"ans\">K3 and UI</span>.";
+
+      var k3OneMo = MID.k3 * MONTH_S;
+      var uiOneMo = MID.ui * MONTH_S;
+      document.getElementById("m4").innerHTML =
+        "One mid node:\n" +
+        "  K3 " + MID.k3 + " tok/s → " + money(k3OneMo / 1e6) + "M tokens/mo  <span class=\"warn\">short ×" + (needR / MID.k3).toFixed(1) + "</span>\n" +
+        "  UI " + MID.ui + " tok/s → " + money(uiOneMo / 1e6) + "M tokens/mo  <span class=\"warn\">short ×" + (needR / MID.ui).toFixed(1) + "</span>\n\n" +
+        "Peak nodes:\n" +
+        "  K3 ceil(" + needR + " / " + MID.k3 + ") = <span class=\"ans\">" + peakK3 + "</span>\n" +
+        "  UI ceil(" + needR + " / " + MID.ui + ") = <span class=\"ans\">" + peakUi + "</span>";
+
+      document.getElementById("t4").innerHTML =
+        "<tr><td>Kimi K3</td><td class=\"num\">" + MID.k3 + "</td><td class=\"num\">" + peakK3 + "</td><td class=\"num\">" + (peakK3 * k3OneMo / 1e9).toFixed(3) + " B</td></tr>" +
+        "<tr><td>UI-Mate</td><td class=\"num\">" + MID.ui + "</td><td class=\"num\">" + peakUi + "</td><td class=\"num\">" + (peakUi * uiOneMo / 1e9).toFixed(3) + " B</td></tr>";
+
+      document.getElementById("m5").innerHTML =
+        "Queue concurrent ≈ 20% × 10,000 = <span class=\"ans\">" + qR.toLocaleString("en-US") + " tok/s</span>\n" +
+        "K3 ceil(" + qR + " / " + MID.k3 + ") = <span class=\"ans\">" + qK3 + "</span>\n" +
+        "UI ceil(" + qR + " / " + MID.ui + ") = <span class=\"ans\">" + qUi + "</span>\n" +
+        "Tokens / mo / model ≈ " + qR.toLocaleString("en-US") + " × " + MONTH_S.toLocaleString("en-US") + " = <span class=\"ans\">" + (qR * MONTH_S / 1e9).toFixed(2) + " B</span>";
+
+      document.getElementById("t5").innerHTML =
+        "<tr><td>Peak</td><td class=\"num\">10,000</td><td class=\"num\">" + peakK3 + "</td><td class=\"num\">" + peakUi + "</td><td class=\"num\">~" + (needR * MONTH_S / 1e9).toFixed(1) + " B</td></tr>" +
+        "<tr><td>Queue 20%</td><td class=\"num\">" + qR.toLocaleString("en-US") + "</td><td class=\"num\">" + qK3 + "</td><td class=\"num\">" + qUi + "</td><td class=\"num\">~" + (qR * MONTH_S / 1e9).toFixed(1) + " B</td></tr>";
+
+      document.getElementById("m6a").innerHTML =
+        "AMD K3: " + money(AMD.k3.capex) + " ÷ 60 + " + AMD.k3.kw + " × 730 × 0.18 = <span class=\"ans\">" + money(amdK) + "</span>\n" +
+        "AMD UI: " + money(AMD.ui.capex) + " ÷ 60 + " + AMD.ui.kw + " × 730 × 0.18 = <span class=\"ans\">" + money(amdU) + "</span>\n" +
+        "NVIDIA K3: " + money(NV.k3.capex) + " ÷ 60 + " + NV.k3.kw + " × 730 × 0.18 = <span class=\"ans\">" + money(nvK) + "</span>\n" +
+        "NVIDIA UI: " + money(NV.ui.capex) + " ÷ 60 + " + NV.ui.kw + " × 730 × 0.18 = <span class=\"ans\">" + money(nvU) + "</span>";
+
+      document.getElementById("m6b").innerHTML =
+        "AWS K3: 6.88 × 8 × 730 = " + money2(CLOUD.aws.k3) + " · UI: 6.88 × 730 = " + money2(CLOUD.aws.ui) + "\n" +
+        "GCP K3: 88.49 × 730 = " + money2(CLOUD.gcp.k3) + " · UI: (88.49/8)×730 = " + money2(CLOUD.gcp.ui) + "\n" +
+        "Azure K3: 98.32 × 730 = " + money2(CLOUD.azure.k3) + " · UI: 6.98 × 730 = " + money2(CLOUD.azure.ui) + "\n" +
+        "Hosted avg K3 = <span class=\"ans\">" + money(hostK) + "</span> · UI = <span class=\"ans\">" + money(hostU) + "</span>";
+
+      document.getElementById("m6c").innerHTML =
+        "One mid K3 node emit = 244 × " + MONTH_S.toLocaleString("en-US") + " tokens\n" +
+        "  ceil(tokens × 135 / 200e6) × 200 = <span class=\"ans\">" + money(unitSeatK) + "</span>  (" + mult(unitSeatK / amdK) + " vs AMD)\n" +
+        "One mid UI node emit = 140 × " + MONTH_S.toLocaleString("en-US") + " tokens\n" +
+        "  ceil(tokens × 27 / 20e6) × 20 = <span class=\"ans\">" + money(unitSeatU) + "</span>  (" + mult(unitSeatU / amdU) + " vs AMD)";
+
+      document.getElementById("t6").innerHTML =
+        "<tr><td>AMD own</td><td class=\"num\">" + money(amdK) + "</td><td class=\"num\">1×</td><td class=\"num\">" + money(amdU) + "</td><td class=\"num\">1×</td></tr>" +
+        "<tr><td>NVIDIA own</td><td class=\"num\">" + money(nvK) + "</td><td class=\"num\">" + mult(nvK / amdK) + "</td><td class=\"num\">" + money(nvU) + "</td><td class=\"num\">" + mult(nvU / amdU) + "</td></tr>" +
+        "<tr><td>Hosted avg</td><td class=\"num\">" + money(hostK) + "</td><td class=\"num\">" + mult(hostK / amdK) + "</td><td class=\"num\">" + money(hostU) + "</td><td class=\"num\">" + mult(hostU / amdU) + "</td></tr>" +
+        "<tr><td>Seats (1 node)</td><td class=\"num\">" + money(unitSeatK) + "</td><td class=\"num\">" + mult(unitSeatK / amdK) + "</td><td class=\"num\">" + money(unitSeatU) + "</td><td class=\"num\">" + mult(unitSeatU / amdU) + "</td></tr>";
+
+      document.getElementById("m7").innerHTML =
+        "Peak AMD = " + peakK3 + "×" + money(amdK) + " + " + peakUi + "×" + money(amdU) + " = <span class=\"ans\">" + money(peak.amd) + "</span>\n" +
+        "Queue AMD = " + qK3 + "×" + money(amdK) + " + " + qUi + "×" + money(amdU) + " = <span class=\"ans\">" + money(queue.amd) + "</span>  (" + mult(queue.amd / peak.amd) + " of peak · ~" + (peak.amd / queue.amd).toFixed(1) + "× cheaper)\n" +
+        "Landing Reveal dollars shows peak fleet $ on each model’s bars.";
+
+      document.getElementById("t7").innerHTML =
+        "<tr><td>AMD own</td><td class=\"num\">" + money(peak.amd) + "</td><td class=\"num\">1×</td><td class=\"num\">" + money(queue.amd) + "</td><td class=\"num\">1×</td></tr>" +
+        "<tr><td>NVIDIA own</td><td class=\"num\">" + money(peak.nv) + "</td><td class=\"num\">" + mult(peak.nv / peak.amd) + "</td><td class=\"num\">" + money(queue.nv) + "</td><td class=\"num\">" + mult(queue.nv / queue.amd) + "</td></tr>" +
+        "<tr><td>Hosted avg</td><td class=\"num\">" + money(peak.host) + "</td><td class=\"num\">" + mult(peak.host / peak.amd) + "</td><td class=\"num\">" + money(queue.host) + "</td><td class=\"num\">" + mult(queue.host / queue.amd) + "</td></tr>" +
+        "<tr><td>Seats</td><td class=\"num\">" + money(peak.seats) + "</td><td class=\"num\">" + mult(peak.seats / peak.amd) + "</td><td class=\"num\">" + money(queue.seats) + "</td><td class=\"num\">" + mult(queue.seats / queue.amd) + "</td></tr>";
+
+      var okPeak = peakK3 * MID.k3 >= needR && peakUi * MID.ui >= needR;
+      var okQueue = qK3 * MID.k3 >= qR && qUi * MID.ui >= qR;
+      document.getElementById("m8").innerHTML =
+        "Peak coverage: " + peakK3 + "×244 = " + (peakK3 * MID.k3) + " ≥ 10,000  " + (okPeak ? "<span class=\"ans\">✓</span>" : "<span class=\"warn\">✗</span>") + "\n" +
+        "             " + peakUi + "×140 = " + (peakUi * MID.ui) + " ≥ 10,000  " + (okPeak ? "<span class=\"ans\">✓</span>" : "<span class=\"warn\">✗</span>") + "\n" +
+        "Queue coverage: " + qK3 + "×244 = " + (qK3 * MID.k3) + " ≥ 2,000  " + (okQueue ? "<span class=\"ans\">✓</span>" : "<span class=\"warn\">✗</span>") + "\n" +
+        "               " + qUi + "×140 = " + (qUi * MID.ui) + " ≥ 2,000  " + (okQueue ? "<span class=\"ans\">✓</span>" : "<span class=\"warn\">✗</span>") + "\n" +
+        "1+1 rack / $6K Pro seats  <span class=\"warn\">✗ not enough for peak floor</span>\n" +
+        "Cartoon ladder uses queue AMD <span class=\"ans\">" + money(queue.amd) + "</span> as 1×";
+    })();
+  </script>
+</body>
+</html>
